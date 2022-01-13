@@ -10,22 +10,25 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     logging.info('Python HTTP trigger function processed a request.')
 
     sqlConnectionString = os.environ["SQLCONNSTR_SQLConnectionString"]
-    turkeySize = 0
+    turkeySize = ''
     messages = []
     statusCode = 200
     ingredients = []
 
     try:
-        turkeySize = float(req.params.get('turkey'))
-        logging.info(str(turkeySize))
+        turkeySize = req.params.get('turkey')
+        logging.info(turkeySize)
+        turkeySize1 = req.params.get('turkey1')
+        logging.info(turkeySize1)		
     except:
         messages.append('Use the query string "turkey" to send a turkey weight in lbs.')
         return generateHttpResponse(ingredients, messages, 400)
 
     sqlConnection = getSqlConnection(sqlConnectionString)
     ingredients = getIngredients(sqlConnection, turkeySize)
-
-    return generateHttpResponse(ingredients, messages, statusCode)
+    ingredients1 = getIngredients1(sqlConnection, turkeySize1)
+	
+    return generateHttpResponse1(ingredients, ingredients1, statusCode)
 
 def generateHttpResponse(ingredients, messages, statusCode):
     return func.HttpResponse(
@@ -33,6 +36,12 @@ def generateHttpResponse(ingredients, messages, statusCode):
         status_code=statusCode
     )
 
+def generateHttpResponse1(ingredients, ingredients1, statusCode):
+    return func.HttpResponse(
+        json.dumps({"Messages": ingredients1, "Ingredients": ingredients}, sort_keys=True, indent=4),
+        status_code=statusCode
+    )
+	
 def getSqlConnection(sqlConnectionString):
     i = 0
     while i < 6:
@@ -46,11 +55,20 @@ def getSqlConnection(sqlConnectionString):
             return sqlConnection
 
 def getIngredients(sqlConnection, turkeySize):
-    logging.info('getting ingredients')
+    logging.info('getting iotdata1')
     results = []
     sqlCursor = sqlConnection.cursor()
-    sqlCursor.execute('EXEC calculateRecipe '+str(turkeySize))
+    sqlCursor.execute('EXEC iotdata1 '+turkeySize)
     results = json.loads(sqlCursor.fetchone()[0])
     sqlCursor.commit()
     sqlCursor.close()
     return results
+def getIngredients1(sqlConnection, turkeySize):
+    logging.info('getting plugname1')
+    results = []
+    sqlCursor = sqlConnection.cursor()
+    sqlCursor.execute('EXEC plugname1 '+turkeySize)
+    results = json.loads(sqlCursor.fetchone()[0])
+    sqlCursor.commit()
+    sqlCursor.close()
+    return results	

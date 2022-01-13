@@ -1,9 +1,9 @@
-CREATE PROCEDURE [dbo].[calculateRecipe]
-  @turkeySize DECIMAL(10,5)
+CREATE PROCEDURE [dbo].[plugname1]
+  @plugname nvarchar(30) = NULL
 AS
 BEGIN
-  SELECT IngredientName, UnitofMeasure,
-    cast(round((RatioToTurkeyLBs*@turkeySize),2) as decimal(6,2)) AS IngredientAmount
-  FROM Ingredients
+  SELECT *
+  FROM cablels
+  WHERE Item_Number = ISNULL(@plugname,Item_Number)
   FOR JSON PATH
 END
